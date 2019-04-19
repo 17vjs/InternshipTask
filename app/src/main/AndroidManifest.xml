@@ -32,6 +32,9 @@
         <activity android:name=".PromoCodesActivity">
 
         </activity>
+        <activity android:name=".Language_Activity">
+
+        </activity>
     </application>
 
 </manifest>

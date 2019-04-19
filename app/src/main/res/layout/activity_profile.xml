@@ -84,18 +84,13 @@ android:id="@+id/selectPic"
         card_view:cardUseCompatPadding="true">
 
 
-        <EditText
+        <Spinner
             android:id="@+id/eTcountry"
-            android:textColor="#000000"
-            android:textColorHint="@color/Black"
+
             android:padding="10dp"
-            android:inputType="textAutoComplete"
             android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter your country"
-            android:drawableLeft="@drawable/ic_keyboard_arrow_right_black_24dp"
-            android:drawableStart="@drawable/ic_keyboard_arrow_right_black_24dp"
             />
 
     </android.support.v7.widget.CardView>

@@ -14,10 +14,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,31 +42,67 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Locale;
 
 
 public class ProfileActivity extends AppCompatActivity {
     public static final int PICK_IMAGE = 1;
 
-    EditText name, emailAddress, country, phone;
-    Button save;
-    Switch email, sms, pushNotification;
-    ImageView photo;
-    Uri uri;
+private    EditText name, emailAddress, phone;
+ private   Button save;
+ private   Switch email, sms, pushNotification;
+ private   ImageView photo;
+  private  Uri uri;
+  private  Spinner citizenship;
+   private StorageReference storageRef;
+
+  private FirebaseUser firebaseUser;
+  private FirebaseFirestore db;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        final FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+     firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
+        storageRef = FirebaseStorage.getInstance().getReference();
+
+         db = FirebaseFirestore.getInstance();
+/////////////////////////////////////////////////////////////////////////////////////////////////
         name = findViewById(R.id.eTname);
         emailAddress = findViewById(R.id.eTmail);
-        country = findViewById(R.id.eTcountry);
         phone = findViewById(R.id.eTphone);
         save = findViewById(R.id.btnSave);
         photo=findViewById(R.id.selectPic);
+        citizenship = findViewById(R.id.eTcountry);
         email = findViewById(R.id.switchEmail);
         sms = findViewById(R.id.switchSms);
         pushNotification = findViewById(R.id.switchPush);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+        Locale[] locale = Locale.getAvailableLocales();
+        ArrayList<String> countries = new ArrayList<String>();
+        String country;
+        for( Locale loc : locale ){
+            country = loc.getDisplayCountry();
+            if( country.length() > 0 && !countries.contains(country) ){
+                countries.add( country );
+            }
+        }
+        Collections.sort(countries, String.CASE_INSENSITIVE_ORDER);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,R.layout.spinner_item, countries);
+        citizenship.setAdapter(adapter);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+      storageRef.child("images/"+FirebaseAuth.getInstance().getCurrentUser().getUid()+"/profilePic.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                // Got the download URL for 'users/me/profile.png'
+                Picasso.get().load(uri).into(photo);
+
+            }
+        });
+
         db.collection("users").document(firebaseUser.getUid()).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -72,7 +110,8 @@ public class ProfileActivity extends AppCompatActivity {
                         if(documentSnapshot.exists()) {
                             UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
                             name.setText(userProfile.getName());
-                            country.setText(userProfile.getCountry());
+                            ArrayAdapter myAdap = (ArrayAdapter) citizenship.getAdapter(); //cast to an ArrayAdapter
+                            citizenship.setSelection(myAdap.getPosition(userProfile.getCountry()));
                             emailAddress.setText(userProfile.getEmailAddress());
                             phone.setText(userProfile.getPhone());
                             email.setChecked(userProfile.isEmail());
@@ -85,21 +124,15 @@ public class ProfileActivity extends AppCompatActivity {
                         }
 
                     }
-                });
-
-        FirebaseStorage.getInstance().getReference().child("images/"+FirebaseAuth.getInstance().getCurrentUser().getUid()+"/profilePic.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onSuccess(Uri uri) {
-                // Got the download URL for 'users/me/profile.png'
-                Picasso.get().load(uri).into(photo);
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(ProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +149,8 @@ public class ProfileActivity extends AppCompatActivity {
                 setSaveBtn();
             }
         });
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
     }
     public String getPathFromURI(Uri contentUri) {
         String res = null;
@@ -152,44 +187,37 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
     private void setSaveBtn() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                 .setDisplayName(name.getText().toString().trim())
                 .build();
-        user.updateProfile(profileUpdates);
-        StorageReference storageRef;
-        storageRef = FirebaseStorage.getInstance().getReference();
-        StorageReference profileRef = storageRef.child("images/"+user.getUid()+"/profilePic.jpg");
+        firebaseUser.updateProfile(profileUpdates);
+        StorageReference profileRef = storageRef.child("images/"+firebaseUser.getUid()+"/profilePic.jpg");
         profileRef.putFile(uri)
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
-                      //  Toast.makeText(ProfileActivity.this, "failed", Toast.LENGTH_SHORT).show();
+                      Toast.makeText(ProfileActivity.this, "failed to upload photo", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-               // Toast.makeText(ProfileActivity.this, "success", Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(ProfileActivity.this, "photo uploaded successfully", Toast.LENGTH_SHORT).show();
             }
         });
-
-        try {
-            UserProfile userProfile = new UserProfile(name.getText().toString(), country.getText().toString(), emailAddress.getText().toString(), phone.getText().toString(),email.isChecked(), sms.isChecked(), pushNotification.isChecked());
-
-
-            db.collection("users").document(user.getUid()).set(userProfile).addOnSuccessListener(new OnSuccessListener<Void>() {
+            UserProfile userProfile = new UserProfile(name.getText().toString(),citizenship.getSelectedItem().toString() , emailAddress.getText().toString(), phone.getText().toString(),email.isChecked(), sms.isChecked(), pushNotification.isChecked());
+            db.collection("users").document(firebaseUser.getUid()).set(userProfile).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(ProfileActivity.this, "saved successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileActivity.this, "data saved successfully", Toast.LENGTH_SHORT).show();
                     onBackPressed();
                 }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(ProfileActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             });
-        }catch (Exception e)
-        {
-          //  Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
+
     }
     public void onBackPressed() {
 

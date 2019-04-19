@@ -18,14 +18,21 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class WishListActivity  extends AppCompatActivity {
-    LinearLayout linearLayout;
+   private LinearLayout linearLayout;
+   private FirebaseFirestore db;
+   private  FirebaseUser firebaseUser;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
-        final FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+       firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
+    db = FirebaseFirestore.getInstance();
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         linearLayout=findViewById(R.id.linearLayout);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         db.collection("users").document(firebaseUser.getUid()).collection("wishList").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

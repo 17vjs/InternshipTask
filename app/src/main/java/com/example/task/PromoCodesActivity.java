@@ -11,24 +11,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class PromoCodesActivity extends AppCompatActivity {
-    LinearLayout linearLayout;
+private     LinearLayout linearLayout;
+private FirebaseUser firebaseUser;
+private FirebaseFirestore db;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
-        final FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        linearLayout=findViewById(R.id.linearLayout);
+
+       firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
+      db = FirebaseFirestore.getInstance();
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      linearLayout=findViewById(R.id.linearLayout);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         db.collection("users").document(firebaseUser.getUid()).collection("promoCode").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

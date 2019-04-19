@@ -2,7 +2,6 @@ package com.example.task;
 
 import android.app.Dialog;
 import android.content.Intent;
-
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,39 +12,37 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailId,password;
  private FirebaseAuth firebaseauth;
     private Dialog dialog;
+private Button loginbtn,registerbtn;
+private TextView back,forgotpassword;
 
     @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
        firebaseauth = FirebaseAuth.getInstance();
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         //UI views
         emailId=findViewById(R.id.emailId);
         password=findViewById(R.id.password);
-        Button loginbtn = findViewById(R.id.loginbtn);
-        Button registerbtn = findViewById(R.id.registerbtn);
-        TextView forgotpassword = findViewById(R.id.forgotPassword);
-
-        TextView back = findViewById(R.id.back);
-
-
-        ///////////
-
+         loginbtn = findViewById(R.id.loginbtn);
+         registerbtn = findViewById(R.id.registerbtn);
+         forgotpassword = findViewById(R.id.forgotPassword);
+         back = findViewById(R.id.back);
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,16 +69,14 @@ public class LoginActivity extends AppCompatActivity {
                 setforgotpasswordtv();
             }
         });
-
-
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 
     private void setLoginBtn()
     {
         dialog = new Dialog(LoginActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-
+        dialog.setContentView(R.layout.dialog);
         dialog.setCancelable(false);
         dialog.show();
 
@@ -91,9 +86,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-
                         emailverification();
-
                     } else {
                         dialog.dismiss();
                         Toast.makeText(LoginActivity.this, "login failed", Toast.LENGTH_SHORT).show();
@@ -127,8 +120,6 @@ public class LoginActivity extends AppCompatActivity {
         return result;
     }
     private void emailverification(){
-
-
         FirebaseUser user = firebaseauth.getInstance().getCurrentUser();
         if (user.isEmailVerified()) {
 
@@ -149,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
         dialog = new Dialog(LoginActivity.this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-
+dialog.setContentView(R.layout.dialog);
         dialog.setCancelable(false);
         dialog.show();
         if(validate()){
