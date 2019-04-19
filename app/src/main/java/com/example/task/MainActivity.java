@@ -11,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,24 +33,25 @@ public class MainActivity extends AppCompatActivity {
     TextView vouchers,wishlist,rewards,language,helpCenter,about,notification;
     ImageView banner;
     LinearLayout card1;
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+
+        @Override
+        protected void onCreate (@Nullable Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final FirebaseUser firebaseUser= FirebaseAuth.getInstance().getCurrentUser();
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 ////////////////////////////////////
-        Toolbar toolbar=findViewById(R.id.toolbar);
-        FAB=findViewById(R.id.float_btn);
-        wishlist=findViewById(R.id.wishlist);
-        rewards=findViewById(R.id.rewards);
-        language=findViewById(R.id.language);
-        helpCenter=findViewById(R.id.helpCenter);
-        about=findViewById(R.id.about);
-        notification=findViewById(R.id.notification);
-        vouchers=findViewById(R.id.vouchers);
-        banner=findViewById(R.id.banner);
-        card1=findViewById(R.id.card1);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        FAB = findViewById(R.id.float_btn);
+        wishlist = findViewById(R.id.wishlist);
+        rewards = findViewById(R.id.rewards);
+        language = findViewById(R.id.language);
+        helpCenter = findViewById(R.id.helpCenter);
+        about = findViewById(R.id.about);
+        notification = findViewById(R.id.notification);
+        vouchers = findViewById(R.id.vouchers);
+        banner = findViewById(R.id.banner);
+        card1 = findViewById(R.id.card1);
 /////////////////////////////////////
         Picasso.get().load("https://cdn.pixabay.com/photo/2017/08/05/18/53/mountain-2585069_1280.jpg").into(banner);
 
@@ -61,9 +63,8 @@ public class MainActivity extends AppCompatActivity {
             db.collection("users").document(firebaseUser.getUid()).collection("promoCode").document("pc2").set(new PromoCodes("NEW40", "12/11/2020"));
             db.collection("users").document(firebaseUser.getUid()).collection("wishList").document("wl1").set(new WishList("12/11/2020", 11));
             db.collection("users").document(firebaseUser.getUid()).collection("wishList").document("wl2").set(new WishList("12/11/2021", 12));
-        }catch (Exception e)
-        {
-           // Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            // Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         try {
             if (getSupportActionBar() != null) {
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 getSupportActionBar().setElevation(0);
 
                 if (firebaseUser != null) {
-                    FirebaseStorage.getInstance().getReference().child("images/"+firebaseUser.getUid()+"/profilePic.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    FirebaseStorage.getInstance().getReference().child("images/" + firebaseUser.getUid() + "/profilePic.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             // Got the download URL for 'users/me/profile.png'
@@ -90,10 +91,10 @@ public class MainActivity extends AppCompatActivity {
                             .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                 @Override
                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    if(documentSnapshot.exists()){
-                                        UserProfile  userProfile = documentSnapshot.toObject(UserProfile.class);
+                                    if (documentSnapshot.exists()) {
+                                        UserProfile userProfile = documentSnapshot.toObject(UserProfile.class);
                                         TextView textView = new TextView(MainActivity.this);
-                                        textView.setText("Credits : "+userProfile.getCreditCount());
+                                        textView.setText("Credits : " + userProfile.getCreditCount());
                                         textView.setTextSize((float) 15);
                                         textView.setTextColor(Color.BLACK);
                                         textView.setBackgroundColor(Color.WHITE);
@@ -103,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
                                         textView.setPadding(20, 10, 20, 10);
                                         card1.addView(textView);
                                         TextView textView1 = new TextView(MainActivity.this);
-                                        textView1.setText("Promo Codes : " +userProfile.getPromoCodeCount());
+                                        textView1.setText("Promo Codes : " + userProfile.getPromoCodeCount());
                                         textView1.setTextSize((float) 15);
                                         textView1.setTextColor(Color.BLACK);
                                         textView1.setBackgroundColor(Color.WHITE);
@@ -111,15 +112,15 @@ public class MainActivity extends AppCompatActivity {
                                         textView1.setPadding(20, 10, 20, 10);
                                         card1.addView(textView1);
 
-                                    }}
+                                    }
+                                }
                             });
 
 
                 }
             }
-        }catch(Exception e)
-        {
-         //   Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            //   Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
         vouchers.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,10 +131,9 @@ public class MainActivity extends AppCompatActivity {
         wishlist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(firebaseUser!=null){
-                    startActivity(new Intent(MainActivity.this,WishListActivity.class));
-                }else
-                {
+                if (firebaseUser != null) {
+                    startActivity(new Intent(MainActivity.this, WishListActivity.class));
+                } else {
                     Toast.makeText(MainActivity.this, "Login first", Toast.LENGTH_SHORT).show();
                 }
 
@@ -174,10 +174,9 @@ public class MainActivity extends AppCompatActivity {
         banner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(firebaseUser!=null){
-                    startActivity(new Intent(MainActivity.this,ProfileActivity.class));
-                }
-                else {
+                if (firebaseUser != null) {
+                    startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                } else {
                     Toast.makeText(MainActivity.this, "Log in to set up your profile ", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -185,10 +184,9 @@ public class MainActivity extends AppCompatActivity {
         card1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(firebaseUser!=null){
-                    startActivity(new Intent(MainActivity.this,PromoCodesActivity.class));
-                }else
-                {
+                if (firebaseUser != null) {
+                    startActivity(new Intent(MainActivity.this, PromoCodesActivity.class));
+                } else {
                     Toast.makeText(MainActivity.this, "Login first", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -196,12 +194,10 @@ public class MainActivity extends AppCompatActivity {
         FAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(firebaseUser==null) {
+                if (firebaseUser == null) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
-                }
-                else
-                {
+                } else {
                     FirebaseAuth.getInstance().signOut();
                     Toast.makeText(MainActivity.this, "signed out", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, MainActivity.class));
@@ -209,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     public void onBackPressed() {
