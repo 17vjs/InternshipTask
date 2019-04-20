@@ -97,7 +97,7 @@ private    EditText name, emailAddress, phone;
       storageRef.child("images/"+FirebaseAuth.getInstance().getCurrentUser().getUid()+"/profilePic.jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                // Got the download URL for 'users/me/profile.png'
+               
                 Picasso.get().load(uri).into(photo);
 
             }
